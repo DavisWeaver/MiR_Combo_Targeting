@@ -14,7 +14,7 @@ gibbs_pipeline <- function(df, filter_proportion = 0.05,
   require(arules)
   require(doParallel)
   require(foreach)
-  source('~/MIR_Combo_Targeting/Code/Network_Evolution/NP_Funcs_MiR.R')
+  source('./NP_Funcs_MiR.R')
   
   # cancer_type <- paste0(cancer_type, collapse = "")
   # load(
@@ -28,9 +28,15 @@ gibbs_pipeline <- function(df, filter_proportion = 0.05,
   df$expression[df$expression <0] <- 0
   #For debugging - make this dataset way way smaller. 
   #Biogrid Data
+  if(!dir.exists("./biogrid")) {
+    download.file("https://downloads.thebiogrid.org/Download/BioGRID/Release-Archive/BIOGRID-3.5.171/BIOGRID-ORGANISM-3.5.171.tab2.zip",
+                  destfile = "./biogrid.zip")
+    unzip('./biogrid.zip', exdir = 'biogrid_unzip')
+    file.remove("./biogrid.zip")
+  }
   biogrid <-
     read.delim(
-      "~/MIR_Combo_Targeting/data_files/BIOGRID-ORGANISM-Homo_sapiens-3.5.171.tab2.txt",
+     "./biogrid_unzip/BIOGRID-ORGANISM-Homo_sapiens-3.5.171.tab2.txt",
       header = TRUE
     )
   
@@ -105,7 +111,7 @@ gibbs_pipeline <- function(df, filter_proportion = 0.05,
   gibbs_df_final <- 
     foreach(exp = 1:length(experiment_id_vec), .combine = rbind, 
             .packages = c('dplyr', 'igraph')) %dopar% {
-              source('~/MIR_Combo_Targeting/Code/Network_Evolution/NP_Funcs_MiR.R')
+              source('./NP_Funcs_MiR.R')
               CalcNewGibbs(gibbs_df, experiment_id_vec[exp], 
                            network = expressionNetwork)
             }
@@ -116,7 +122,7 @@ gibbs_pipeline <- function(df, filter_proportion = 0.05,
   #gibbs_df_final[[exp]] <- gibbs_df_exp
   #}
   #gibbs_df_final <- bind_rows(gibbs_df_final)
-  save(gibbs_df_final, file = paste0("~/MIR_Combo_Targeting/data_files/gibbsdf_final_EWS.Rda")) 
+  save(gibbs_df_final, file = paste0("./data_files/gibbsdf_final_EWS.Rda")) 
 }
 
 #Do a log transform on this stuff (logbase2 and then put it in)
