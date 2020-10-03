@@ -28,10 +28,12 @@ gibbs_pipeline <- function(df, filter_proportion = 0.05,
   df$expression[df$expression <0] <- 0
   #For debugging - make this dataset way way smaller. 
   #Biogrid Data
-  if(!dir.exists("./biogrid")) {
+  if(!dir.exists("./biogrid_unzip")) {
     download.file("https://downloads.thebiogrid.org/Download/BioGRID/Release-Archive/BIOGRID-3.5.171/BIOGRID-ORGANISM-3.5.171.tab2.zip",
                   destfile = "./biogrid.zip")
-    unzip('./biogrid.zip', exdir = 'biogrid_unzip')
+    unzip('./biogrid.zip', 
+          files = c("BIOGRID-ORGANISM-Homo_sapiens-3.5.171.tab2.txt"), 
+          exdir = 'biogrid_unzip')
     file.remove("./biogrid.zip")
   }
   biogrid <-
